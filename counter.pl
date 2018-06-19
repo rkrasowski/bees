@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use Time::HiRes  qw(tv_interval gettimeofday);
 
-my $data = "0110001110101111010100111010101\n";
 
-print "Data: $data\n";
+
+my $data = "01100101110101111010100111010101\n";
 
 ##########################  Config parameters #########################
 my $in = 0;
@@ -25,28 +26,20 @@ for (my $j=1; $j <= $numOfChannels; $j++)
 		push @timeArray, $timeMs;
 	}
 
-print @timeArray;
 
+
+# Getting data
+
+
+
+my  $start = [gettimeofday];
 
 
 my @dataArray = split (//,$data);
 my $dataArray;
 
 
-
-channelCheck(2);
-
-                        
-
-print "Data IN: $in, OUT: $out\n";
-
-print @timeArray;
-
-exit();
-
-
-while(1)
-	{
+	
 		for (my $i=1; $i <= $numOfChannels; $i++) 
 			{
    
@@ -54,8 +47,16 @@ while(1)
 
 			}
 
+
+my   $finish = [gettimeofday];
+
+my $elapsed = tv_interval($start,$finish);
+
+
+
 print "Data IN: $in, OUT: $out\n";
-}
+print "Elapsed Time: $elapsed\n";
+
 ############################################## Subroutines #########################################################
 
 
@@ -63,7 +64,6 @@ sub channelCheck
 	{
 		my $channelNumber = shift;
 		
-	print "Channel number $channelNumber\n\n";
 		my $firstElemArray;
 		my $secondElemArray;
 		my $timeCheckMs;
@@ -82,11 +82,9 @@ sub channelCheck
 
 				$firstElemArray = ($channelNumber * 2) - 2;
 				$secondElemArray = ($channelNumber *2) - 1;
-			print "First: $firstElemArray\nSecond: $secondElemArray\n\n";
 			}
 
 		
-		print "Dat1 $dataArray[$firstElemArray]\nDat $dataArray[$secondElemArray]\n";
 
 	# Case of new IN 
 
@@ -98,23 +96,20 @@ sub channelCheck
 
 				my $timeCheckMs = `date +%s%N | cut -b1-13`;
 				$nextTime = $timeArray[$channelNumber -1];
-                                print "NextTime is $nextTime\n";
 				
 
 				if ($timeCheckMs > $nextTime)
 					{ 		
 				
 						$in = $in +1;
-						print "Adding IN\n";
 						$nextTime = $timeCheckMs + $delay;
-						print "NewNext Time: $nextTime\n";
 						$timeArray[$channelNumber -1] = "$nextTime\n";
 					}
 
 			}
 
 
-	# cASE OF NEW out 
+	# cASE OF new OUT 
 
 
 		if ($dataArray[$secondElemArray] == 1 and $dataArray[$firstElemArray]  == 0)
@@ -122,22 +117,18 @@ sub channelCheck
 		
 			  my $timeCheckMs = `date +%s%N | cut -b1-13`;
                                 $nextTime = $timeArray[$channelNumber -1];
-                                print "NextTime is $nextTime\n";
 
 
                                 if ($timeCheckMs > $nextTime)
                                         {
 
                                                 $out = $out +1;
-                                                print "Adding OUT\n";
                                                 $nextTime = $timeCheckMs + $delay;
-                                                print "NewNext Time: $nextTime\n";
                                                 $timeArray[$channelNumber -1] = "$nextTime\n";
                                         }
  
 
 
                        }
-
 
 	}
