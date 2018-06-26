@@ -64,7 +64,7 @@ my $ref = \@dataArray;
 for ( my $i = 1;  $i<= $numOfChannels; $i++)
 	{
 			counter($ref,$i);
-			print "##########################################\n";
+			print "__________________________________\n";
 	}
 ########################################## Subroutines ##############################
 sub counter {
@@ -78,7 +78,7 @@ sub counter {
 #	print "InOutElem Array $inoutElemArray\n";
 print "Channel number: $channel\n";
 
-	# IN triggered:
+	# IN triggered : Bee getting from Outside to Inside, so it is gettin IN  (outside sensor in first):
 
 	if (${$refInside}[$firstElemArray] == 1 and ${$refInside}[$secondElemArray] == 0)
 		{
@@ -95,9 +95,9 @@ print "Channel number: $channel\n";
 		}
 
 
-	# IN and OUT triggered direction OUT	
+	# IN and OUT sensor triggered direction: Getting inside	
 
-	if (${$refInside}[$firstElemArray] == 1 and ${$refInside}[$secondElemArray] == 1 and $inArray[0] == 1)
+	if (${$refInside}[$firstElemArray] == 1 and ${$refInside}[$secondElemArray] == 1 and $inArray[$inoutElemArray] == 1)
 		{
 
 			if ($outArray[$inoutElemArray] == 0)						# Checking if channel OUT is active
@@ -109,7 +109,7 @@ print "Channel number: $channel\n";
 				}
 		}	
 
-	# OUT triggered
+	# OUT triggered: Bee is getting from Inside to outside, so it is getting OUT (Inside sensor triggered first)
 
 	if (${$refInside}[$secondElemArray] == 1 and ${$refInside}[$firstElemArray] == 0) 
 		{
@@ -168,10 +168,10 @@ foreach $timeBeeDBIn(@timeBeeDBIn)
 	}
 
 
-#foreach $timeBeeDBOut (@timeBeeDBOut)
-#	{
-#		print "TimeBee OUT: $timeBeeDBOut\n";
-#	}
+foreach $timeBeeDBOut (@timeBeeDBOut)
+	{
+		print "TimeBee OUT: $timeBeeDBOut\n";
+	}
 
 my $finish = [gettimeofday];
 my $elapsed = tv_interval($start,$finish);
