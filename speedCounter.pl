@@ -5,17 +5,16 @@ use Time::HiRes  qw(tv_interval gettimeofday);
 
 
 
-my $data = "11100101110101111010100111010101\n";
-print "Data: $data\n";
+#my $data = "11100101110101111010100111010101\n";
 				
 ##########################  Config parameters #########################
 my $in = 0;
 my $out = 0;
-my $numOfChannels = 12;
-my $delay = 11111; 		#delay ms
+my $numOfChannels = 6;
+
 #######################################################################
 
-# Create starting time array 
+# Create variables
 
 my @timeArray;
 my $timeArray;
@@ -27,9 +26,6 @@ for (my $j=1; $j <= $numOfChannels; $j++)
 		push @timeArray, $timeMs;
 	}
 
-
-
-# Getting data
 
 my @inArray= (0,0,0,0,0,0,0,0,0,0,0,0);
 my $inArray;
@@ -44,86 +40,127 @@ my $timeBeeDBIn;
 my @timeBeeDBOut;
 my $timeBeeDBOut;
 
+
+
+
+while(1)
+{
+# Just for testing 
+
+open FH, "test.txt" or die "Could not open file: $!";
+my $data = join("",<FH>);
+close FH;
+
+
 my  $start = [gettimeofday];
 
-my @dataArray = split (//,$data);
+my @dataArray = split (//,$data);;
 my $dataArray;
 
-# IN triggered:
+print "Data outside @dataArray\n";
 
-if ($dataArray[0] == 1 and $dataArray[1] == 0)
+
+my $ref = \@dataArray;
+for ( my $i = 1;  $i<= $numOfChannels; $i++)
 	{
-		if ($inArray[0] == 0)    					# Checking if channel IN is ative		
-			{
-				$timeBeeStart[0] =	`date +%s%N | cut -b1-13`;
-				$in = $in + 1;
-				$inArray[0] = 1;				# Desactivating IN channel
-			}
+			counter($ref,$i);
+			print "##########################################\n";
 	}
+########################################## Subroutines ##############################
+sub counter {
+	my $refInside = shift;
+	my $channel = shift;
+	my $firstElemArray = ($channel * 2) - 2;
+        my $secondElemArray = ($channel *2) -1;	
+	my $inoutElemArray = $channel -1;
+#	print "First $firstElemArray\n";
+#	print "Second $secondElemArray\n";
+#	print "InOutElem Array $inoutElemArray\n";
+print "Channel number: $channel\n";
+
+	# IN triggered:
+
+	if (${$refInside}[$firstElemArray] == 1 and ${$refInside}[$secondElemArray] == 0)
+		{
+			#		print "In for channel $inoutElemArray triggered\n";
+		
+			if ($inArray[$inoutElemArray] == 0)    					# Checking if channel IN is ative		
+				{
+					$timeBeeStart[$inoutElemArray] =`date +%s%N | cut -b1-13`;
+					$in = $in + 1;
+					$inArray[$inoutElemArray] = 1;				# Desactivating IN channel
+					#	print "Channel number $channel IN  blocked\n";
+				}
+				#	print "INarray: @inArray\n";
+		}
 
 
-# IN and OUT triggered direction OUT	
+	# IN and OUT triggered direction OUT	
 
-if ($dataArray[0] == 1 and $dataArray[1] == 1 and $inArray[0] == 1)
-	{
+	if (${$refInside}[$firstElemArray] == 1 and ${$refInside}[$secondElemArray] == 1 and $inArray[0] == 1)
+		{
 
-		if ($outArray[0] == 0)						# Checking if channel OUT is active
-			{
-				$timeBeeFinish = `date +%s%N | cut -b1-13`;
-				$timeBeeDiff = $timeBeeFinish - $timeBeeStart[0];
-				push (@timeBeeDBOut,$timeBeeDiff);
-				$outArray[0] = 1;
-			}
-	}	
+			if ($outArray[$inoutElemArray] == 0)						# Checking if channel OUT is active
+				{
+					$timeBeeFinish = `date +%s%N | cut -b1-13`;
+					$timeBeeDiff = $timeBeeFinish - $timeBeeStart[$inoutElemArray];
+					push (@timeBeeDBOut,$timeBeeDiff);
+					$outArray[$inoutElemArray] = 1;
+				}
+		}	
 
-# OUT triggered
+	# OUT triggered
 
-if ($dataArray[1] == 1 and $dataArray[0] == 0) 
-	{
-		if ($outArray[0] == 0)    					# Checking if channel OUT is ative		
-			{
-				$timeBeeStart[0] =	`date +%s%N | cut -b1-13`;
-				$out = $out + 1;
-				$outArray[0] = 1;				# Desactivating OUT channel
-			}
+	if (${$refInside}[$secondElemArray] == 1 and ${$refInside}[$firstElemArray] == 0) 
+		{
+			#	print "Out in channel $channel is triggered\n";
+			if ($outArray[$inoutElemArray] == 0)    					# Checking if channel OUT is ative		
+				{
+					$timeBeeStart[$inoutElemArray] =	`date +%s%N | cut -b1-13`;
+					$out = $out + 1;
+					$outArray[$inoutElemArray] = 1;				# Desactivating OUT channel
+				}	
+		}
 
-
-# OUT and IN triggered direction IN 
+	# OUT and IN triggered direction IN 
 			
-		if ($inArray[0] == 0  and $dataArray[0] == 1 and $outArray[1] == 1)			# Checking if channel IN is active
-			{
-				$timeBeeFinish = `date +%s%N | cut -b1-13`;
-				$timeBeeDiff = $timeBeeFinish - $timeBeeStart[0];
-				push (@timeBeeDBIn,$timeBeeDiff);
-				$inArray[0] = 1;
-			}
-	}	
+	if ($inArray[$inoutElemArray] == 0  and ${$refInside}[$firstElemArray] == 1 and $outArray[$inoutElemArray] == 1)
+
+				{
+					$timeBeeFinish = `date +%s%N | cut -b1-13`;
+					$timeBeeDiff = $timeBeeFinish - $timeBeeStart[$inoutElemArray];
+					push (@timeBeeDBIn,$timeBeeDiff);
+					$inArray[$inoutElemArray] = 1;
+				}
+		
 
 
 
-# Reactivate channel 
+	# Reactivate channel 
+#print "First element of dataArray: ${$refInside}[$firstElemArray]\n";
+#print "Second elementod dataArray: ${$refInside}[$secondElemArray]\n";
 
-if ($dataArray[0] == 0  and $dataArray[1] ==0)
-	{
-		$inArray[0] = 0;
-		$outArray[0] = 0;
-	}
+	if (${$refInside}[$firstElemArray] == 0  and ${$refInside}[$secondElemArray] ==0)
+		{
+			$inArray[$inoutElemArray] = 0;
+			$outArray[$inoutElemArray] = 0;
+	#		print "Channel $channel is active again\n";
+		}
+}
 
 
+##################### Print  data ####################
 
+#foreach $inArray (@inArray)
+#	{
+#		print "InArray: $inArray\n";
+#	}
 
-
-
-foreach $inArray (@inArray)
-	{
-		print "InArray: $inArray\n";
-	}
-
-foreach $outArray(@outArray)
-	{
-		print "OutArray: $outArray\n";
-
-	}
+#foreach $outArray(@outArray)
+#	{
+#		print "OutArray: $outArray\n";
+#
+#	}
 
 foreach $timeBeeDBIn(@timeBeeDBIn)
 	{
@@ -131,23 +168,20 @@ foreach $timeBeeDBIn(@timeBeeDBIn)
 	}
 
 
-foreach $timeBeeDBOut (@timeBeeDBOut)
-	{
-		print "TimeBee OUT: $timeBeeDBOut\n";
-	}
-#		for (my $i=1; $i <= $numOfChannels; $i++) 
-#			{
-   
-			
-#			}
-
+#foreach $timeBeeDBOut (@timeBeeDBOut)
+#	{
+#		print "TimeBee OUT: $timeBeeDBOut\n";
+#	}
 
 my $finish = [gettimeofday];
 my $elapsed = tv_interval($start,$finish);
 
 
-
 print "Data IN: $in, OUT: $out\n";
 print "Elapsed Time: $elapsed\n";
+print "\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n";
 
+sleep(5);
+
+}
 ############################################## Subroutines #########################################################
