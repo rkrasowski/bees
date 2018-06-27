@@ -9,7 +9,7 @@ use Time::HiRes  qw(tv_interval gettimeofday);
 my $in = 0;
 my $out = 0;
 my $numOfChannels = 6;
-my $delay = 100;
+my $delay = 10;
 #######################################################################
 
 # Create variables
@@ -44,19 +44,29 @@ while(1)
 		my @dataArray = split (//,$data);;
 		my $dataArray;
 
-		print "Data outside @dataArray\n";
+		print "Data outside @dataArray";
 
 
 		my $ref = \@dataArray;
 		for (my $i = 1;  $i<= $numOfChannels; $i++)
 			{
 				counter($ref,$i);
-				print "__________________________________\n";
+				#	print "__________________________________\n";
 			}
-		if (`date +%s` >= $time2Send)
+		if (`date +%s` < $time2Send)
 			{
-				sendDB();
+				sendDB();;
 			}
+
+		#Start just for testing
+		my $finish = [gettimeofday];
+		my $elapsed = tv_interval($start,$finish);
+
+		print  "In: $in\nOut:$out\n";
+		print "Elapsed time: $elapsed\n";
+		sleep(2);
+		#Finish just for testing
+	}
 ########################################## Subroutines ##############################
 sub counter {
 	my $refInside = shift;
@@ -64,10 +74,10 @@ sub counter {
 	my $firstElemArray = ($channel * 2) - 2;
         my $secondElemArray = ($channel *2) -1;	
 	my $inoutElemArray = $channel -1;
-#	print "First $firstElemArray\n";
-#	print "Second $secondElemArray\n";
-#	print "InOutElem Array $inoutElemArray\n";
-print "Channel number: $channel\n";
+	#print 	"First $firstElemArray\n";
+	#	print "Second $secondElemArray\n";
+	#	print "InOutElem Array $inoutElemArray\n";
+	#print "Channel number: $channel\n";
 
 	# IN triggered : Bee getting from Outside to Inside, so it is gettin IN  (outside sensor in first):
 
@@ -124,12 +134,7 @@ print "Channel number: $channel\n";
 					$inArray[$inoutElemArray] = 1;
 				}
 		
-
-
-
-	# Reactivate channel 
-#print "First element of dataArray: ${$refInside}[$firstElemArray]\n";
-#print "Second elementod dataArray: ${$refInside}[$secondElemArray]\n";
+	# Reactivate channels
 
 	if (${$refInside}[$firstElemArray] == 0  and ${$refInside}[$secondElemArray] ==0)
 		{
@@ -159,22 +164,10 @@ foreach $timeBeeDBIn(@timeBeeDBIn)
 	}
 
 
-foreach $timeBeeDBOut (@timeBeeDBOut)
-	{
-		print "Time for bee to get Outside: $timeBeeDBOut\n";
-	}
-
-my $finish = [gettimeofday];
-my $elapsed = tv_interval($start,$finish);
-
-
-print "Data IN: $in, OUT: $out\n";
-print "Elapsed Time: $elapsed\n";
-print "\n================================================n\n";
-
-sleep(5);
-
-}
+#foreach $timeBeeDBOut (@timeBeeDBOut)
+#	{
+#		print "Time for bee to get Outside: $timeBeeDBOut\n";
+	#
 
 sub sendDB
 	{
