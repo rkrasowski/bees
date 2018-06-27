@@ -27,12 +27,11 @@ my $timeBeeDBIn;
 my @timeBeeDBOut;
 my $timeBeeDBOut;
 
-
+my $time2Send = `date +%s` + $delay; 			# Calculate time for next send
 
 
 while(1)
 	{
-		my $time2Send = `date +%s` + $delay;	# calculate time for sending to DB
 		# Just for testing 
 		open FH, "test.txt" or die "Could not open file: $!";
 		my $data = join("",<FH>);
@@ -53,8 +52,12 @@ while(1)
 				counter($ref,$i);
 				#	print "__________________________________\n";
 			}
-		if (`date +%s` < $time2Send)
+			print "Time to send: $time2Send\n";
+			my $timeNow = `date +%s`;
+			print "Time now $timeNow\n";
+		if (`date +%s` >= $time2Send)
 			{
+				$time2Send = `date +%s` + $delay;
 				sendDB();;
 			}
 
