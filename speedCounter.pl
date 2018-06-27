@@ -11,7 +11,7 @@ use Time::HiRes  qw(tv_interval gettimeofday);
 my $in = 0;
 my $out = 0;
 my $numOfChannels = 6;
-
+my $delay = 100;
 #######################################################################
 
 # Create variables
@@ -45,27 +45,31 @@ my $timeBeeDBOut;
 
 while(1)
 {
-# Just for testing 
+	my $time2Send = `date +%s` + $delay;	# calculate time for sending to DB
+	# Just for testing 
+	open FH, "test.txt" or die "Could not open file: $!";
+	my $data = join("",<FH>);
+	close FH;
+	#end just for testing
 
-open FH, "test.txt" or die "Could not open file: $!";
-my $data = join("",<FH>);
-close FH;
+	my  $start = [gettimeofday];
+
+	my @dataArray = split (//,$data);;
+	my $dataArray;
+
+	print "Data outside @dataArray\n";
 
 
-my  $start = [gettimeofday];
-
-my @dataArray = split (//,$data);;
-my $dataArray;
-
-print "Data outside @dataArray\n";
-
-
-my $ref = \@dataArray;
-for ( my $i = 1;  $i<= $numOfChannels; $i++)
-	{
+	my $ref = \@dataArray;
+	for (my $i = 1;  $i<= $numOfChannels; $i++)
+		{
 			counter($ref,$i);
 			print "__________________________________\n";
-	}
+		}
+	if (`date +%s` >= $time2Send)
+		{
+			sendDB();
+		}
 ########################################## Subroutines ##############################
 sub counter {
 	my $refInside = shift;
@@ -184,4 +188,10 @@ print "\n================================================n\n";
 sleep(5);
 
 }
+
+sub sendDB
+	{
+		print "Data sent to DB\n";
+	}
+
 ############################################## Subroutines #########################################################
