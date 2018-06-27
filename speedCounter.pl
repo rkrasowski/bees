@@ -104,7 +104,7 @@ print "Channel number: $channel\n";
 				{
 					$timeBeeFinish = `date +%s%N | cut -b1-13`;
 					$timeBeeDiff = $timeBeeFinish - $timeBeeStart[$inoutElemArray];
-					push (@timeBeeDBOut,$timeBeeDiff);
+					push (@timeBeeDBIn,$timeBeeDiff);
 					$outArray[$inoutElemArray] = 1;
 				}
 		}	
@@ -122,14 +122,14 @@ print "Channel number: $channel\n";
 				}	
 		}
 
-	# OUT and IN triggered direction IN 
+	# OUT and IN triggered direction OUT: bee is getting  OUTSIDE
 			
 	if ($inArray[$inoutElemArray] == 0  and ${$refInside}[$firstElemArray] == 1 and $outArray[$inoutElemArray] == 1)
 
 				{
 					$timeBeeFinish = `date +%s%N | cut -b1-13`;
 					$timeBeeDiff = $timeBeeFinish - $timeBeeStart[$inoutElemArray];
-					push (@timeBeeDBIn,$timeBeeDiff);
+					push (@timeBeeDBOut,$timeBeeDiff);
 					$inArray[$inoutElemArray] = 1;
 				}
 		
@@ -164,13 +164,13 @@ print "Channel number: $channel\n";
 
 foreach $timeBeeDBIn(@timeBeeDBIn)
 	{
-		print "TimeBee IN: $timeBeeDBIn\n";
+		print "Time for bee to get Inside: $timeBeeDBIn\n";
 	}
 
 
 foreach $timeBeeDBOut (@timeBeeDBOut)
 	{
-		print "TimeBee OUT: $timeBeeDBOut\n";
+		print "Time for bee to get Outside: $timeBeeDBOut\n";
 	}
 
 my $finish = [gettimeofday];
@@ -179,7 +179,7 @@ my $elapsed = tv_interval($start,$finish);
 
 print "Data IN: $in, OUT: $out\n";
 print "Elapsed Time: $elapsed\n";
-print "\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n";
+print "\n================================================n\n";
 
 sleep(5);
 
