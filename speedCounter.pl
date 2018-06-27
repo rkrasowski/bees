@@ -4,8 +4,6 @@ use warnings;
 use Time::HiRes  qw(tv_interval gettimeofday);
 
 
-
-#my $data = "11100101110101111010100111010101\n";
 				
 ##########################  Config parameters #########################
 my $in = 0;
@@ -15,17 +13,6 @@ my $delay = 100;
 #######################################################################
 
 # Create variables
-
-my @timeArray;
-my $timeArray;
-
-for (my $j=1; $j <= $numOfChannels; $j++)
-	{
-		
-		my $timeMs = `date +%s%N | cut -b1-13`;		#time in ms
-		push @timeArray, $timeMs;
-	}
-
 
 my @inArray= (0,0,0,0,0,0,0,0,0,0,0,0);
 my $inArray;
@@ -44,32 +31,32 @@ my $timeBeeDBOut;
 
 
 while(1)
-{
-	my $time2Send = `date +%s` + $delay;	# calculate time for sending to DB
-	# Just for testing 
-	open FH, "test.txt" or die "Could not open file: $!";
-	my $data = join("",<FH>);
-	close FH;
-	#end just for testing
+	{
+		my $time2Send = `date +%s` + $delay;	# calculate time for sending to DB
+		# Just for testing 
+		open FH, "test.txt" or die "Could not open file: $!";
+		my $data = join("",<FH>);
+		close FH;
+		#end just for testing
 
-	my  $start = [gettimeofday];
+		my  $start = [gettimeofday];
 
-	my @dataArray = split (//,$data);;
-	my $dataArray;
+		my @dataArray = split (//,$data);;
+		my $dataArray;
 
-	print "Data outside @dataArray\n";
+		print "Data outside @dataArray\n";
 
 
-	my $ref = \@dataArray;
-	for (my $i = 1;  $i<= $numOfChannels; $i++)
-		{
-			counter($ref,$i);
-			print "__________________________________\n";
-		}
-	if (`date +%s` >= $time2Send)
-		{
-			sendDB();
-		}
+		my $ref = \@dataArray;
+		for (my $i = 1;  $i<= $numOfChannels; $i++)
+			{
+				counter($ref,$i);
+				print "__________________________________\n";
+			}
+		if (`date +%s` >= $time2Send)
+			{
+				sendDB();
+			}
 ########################################## Subroutines ##############################
 sub counter {
 	my $refInside = shift;
