@@ -2,18 +2,18 @@
 use strict;
 use warnings;
 use Time::HiRes  qw(tv_interval gettimeofday);
-
+use List::Util qw(sum);
 
 				
 ##########################  Config parameters #########################
-my $in = 0;
-my $out = 0;
 my $numOfChannels = 12;
-my $delay = 5;
+my $delay = 5;			# Time delay for sending data to DB
+my $distance = 2; 		# Distance between sensors
 #######################################################################
 
 # Create variables
-
+my $in = 0;
+my $out = 0;
 my @inArray= (0,0,0,0,0,0,0,0,0,0,0,0);
 my $inArray;
 my @outArray= (0,0,0,0,0,0,0,0,0,0,0,0);
@@ -65,7 +65,7 @@ while(1)
 
 		print  "In: $in\nOut:$out\n";
 		print "Elapsed time: $elapsed\n";
-		#	sleep(2);
+			sleep(2);
 		#Finish just for testing
 	}
 ########################################## Subroutines ##############################
@@ -143,6 +143,22 @@ sub counter {
 sub sendDB
 	{
 		print "Data sent to DB\n";
+		my $speedIn;
+		my $speedOut;
+
+		if (@timeBeeDBIn > 0)
+			{
+				my $meanTimeIn = sum(@timeBeeDBIn) / @timeBeeDBIn;
+				$speedIn = $distance / ($meanTimeIn * 0.001);
+				print "Speed In: $speedIn\n";
+			}	
+		if (@timeBeeDBOut > 0)
+			{
+				my $meanTimeOut = sum(@timeBeeDBOut) / @timeBeeDBOut;
+				$speedOut = $distance / ($meanTimeOut * 0.001);
+				print "Speed Out: $speedOut\n";
+			}
+
 	}
 
 ############################################## Subroutines #########################################################
