@@ -8,8 +8,8 @@ use Time::HiRes  qw(tv_interval gettimeofday);
 ##########################  Config parameters #########################
 my $in = 0;
 my $out = 0;
-my $numOfChannels = 6;
-my $delay = 10;
+my $numOfChannels = 12;
+my $delay = 5;
 #######################################################################
 
 # Create variables
@@ -52,9 +52,7 @@ while(1)
 				counter($ref,$i);
 				#	print "__________________________________\n";
 			}
-			print "Time to send: $time2Send\n";
-			my $timeNow = `date +%s`;
-			print "Time now $timeNow\n";
+		
 		if (`date +%s` >= $time2Send)
 			{
 				$time2Send = `date +%s` + $delay;
@@ -67,7 +65,7 @@ while(1)
 
 		print  "In: $in\nOut:$out\n";
 		print "Elapsed time: $elapsed\n";
-		sleep(2);
+		#	sleep(2);
 		#Finish just for testing
 	}
 ########################################## Subroutines ##############################
@@ -77,25 +75,17 @@ sub counter {
 	my $firstElemArray = ($channel * 2) - 2;
         my $secondElemArray = ($channel *2) -1;	
 	my $inoutElemArray = $channel -1;
-	#print 	"First $firstElemArray\n";
-	#	print "Second $secondElemArray\n";
-	#	print "InOutElem Array $inoutElemArray\n";
-	#print "Channel number: $channel\n";
 
 	# IN triggered : Bee getting from Outside to Inside, so it is gettin IN  (outside sensor in first):
 
 	if (${$refInside}[$firstElemArray] == 1 and ${$refInside}[$secondElemArray] == 0)
 		{
-			#		print "In for channel $inoutElemArray triggered\n";
-		
 			if ($inArray[$inoutElemArray] == 0)    					# Checking if channel IN is ative		
 				{
 					$timeBeeStart[$inoutElemArray] =`date +%s%N | cut -b1-13`;
 					$in = $in + 1;
 					$inArray[$inoutElemArray] = 1;				# Desactivating IN channel
-					#	print "Channel number $channel IN  blocked\n";
 				}
-				#	print "INarray: @inArray\n";
 		}
 
 
@@ -117,7 +107,6 @@ sub counter {
 
 	if (${$refInside}[$secondElemArray] == 1 and ${$refInside}[$firstElemArray] == 0) 
 		{
-			#	print "Out in channel $channel is triggered\n";
 			if ($outArray[$inoutElemArray] == 0)    					# Checking if channel OUT is ative		
 				{
 					$timeBeeStart[$inoutElemArray] =	`date +%s%N | cut -b1-13`;
@@ -143,34 +132,13 @@ sub counter {
 		{
 			$inArray[$inoutElemArray] = 0;
 			$outArray[$inoutElemArray] = 0;
-	#		print "Channel $channel is active again\n";
 		}
 }
 
 
-##################### Print  data ####################
-
-#foreach $inArray (@inArray)
-#	{
-#		print "InArray: $inArray\n";
-#	}
-
-#foreach $outArray(@outArray)
-#	{
-#		print "OutArray: $outArray\n";
-#
-#	}
-
-foreach $timeBeeDBIn(@timeBeeDBIn)
-	{
-		print "Time for bee to get Inside: $timeBeeDBIn\n";
-	}
 
 
-#foreach $timeBeeDBOut (@timeBeeDBOut)
-#	{
-#		print "Time for bee to get Outside: $timeBeeDBOut\n";
-	#
+
 
 sub sendDB
 	{
