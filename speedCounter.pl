@@ -33,17 +33,17 @@ my $time2Send = `date +%s` + $delay; 			# Calculate time for next send
 while(1)
 	{
 		# Just for testing 
-		open FH, "test.txt" or die "Could not open file: $!";
-		my $data = join("",<FH>);
-		close FH;
+		#	open FH, "test.txt" or die "Could not open file: $!";
+		#my $data = join("",<FH>);
+		#close FH;
 		#end just for testing
-
+		my $data = `/home/pi/Programming/bees/shiftRegister`;
 		my  $start = [gettimeofday];
 
 		my @dataArray = split (//,$data);;
 		my $dataArray;
 
-		print "Data outside @dataArray";
+		#print "Data outside @dataArray";
 
 
 		my $ref = \@dataArray;
@@ -62,10 +62,11 @@ while(1)
 		#Start just for testing
 		my $finish = [gettimeofday];
 		my $elapsed = tv_interval($start,$finish);
+		$elapsed = sprintf("%.4f",$elapsed);
 
-		print  "In: $in\nOut:$out\n";
-		print "Elapsed time: $elapsed\n";
-			sleep(2);
+		print  "In: $in Out:$out Elapsed Time: $elapsed\r";
+		
+		
 		#Finish just for testing
 	}
 ########################################## Subroutines ##############################
@@ -150,12 +151,14 @@ sub sendDB
 			{
 				my $meanTimeIn = sum(@timeBeeDBIn) / @timeBeeDBIn;
 				$speedIn = $distance / ($meanTimeIn * 0.001);
+				$speedIn = sprintf("%.1f",$speedIn);
 				print "Speed In: $speedIn\n";
 			}	
 		if (@timeBeeDBOut > 0)
 			{
 				my $meanTimeOut = sum(@timeBeeDBOut) / @timeBeeDBOut;
 				$speedOut = $distance / ($meanTimeOut * 0.001);
+				$speedOut = sprintf("%.1f",$speedOut);
 				print "Speed Out: $speedOut\n";
 			}
 
