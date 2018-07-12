@@ -8,7 +8,7 @@ use List::Util qw(sum);
 ##########################  Config parameters #########################
 my $numOfChannels = 12;
 my $delay = 5;			# Time delay for sending data to DB
-my $distance = 2; 		# Distance between sensors
+my $distance = 5; 		# Distance between sensors
 #######################################################################
 
 # Create variables
@@ -32,11 +32,6 @@ my $time2Send = `date +%s` + $delay; 			# Calculate time for next send
 
 while(1)
 	{
-		# Just for testing 
-		#	open FH, "test.txt" or die "Could not open file: $!";
-		#my $data = join("",<FH>);
-		#close FH;
-		#end just for testing
 		my $data = `/home/pi/Programming/bees/shiftRegister`;
 		my  $start = [gettimeofday];
 
@@ -67,7 +62,6 @@ while(1)
 		print  "In: $in Out:$out Elapsed Time: $elapsed\r";
 		
 		
-		#Finish just for testing
 	}
 ########################################## Subroutines ##############################
 sub counter {
@@ -101,6 +95,7 @@ sub counter {
 					$timeBeeDiff = $timeBeeFinish - $timeBeeStart[$inoutElemArray];
 					push (@timeBeeDBIn,$timeBeeDiff);
 					$outArray[$inoutElemArray] = 1;
+
 				}
 		}	
 
@@ -147,19 +142,23 @@ sub sendDB
 		my $speedIn;
 		my $speedOut;
 
+
 		if (@timeBeeDBIn > 0)
 			{
 				my $meanTimeIn = sum(@timeBeeDBIn) / @timeBeeDBIn;
-				$speedIn = $distance / ($meanTimeIn * 0.001);
+				$speedIn = $distance / ($meanTimeIn * 0.05 );
 				$speedIn = sprintf("%.1f",$speedIn);
-				print "Speed In: $speedIn\n";
+				print "Speed In: $speedIn mm/sec\n";
+				@timeBeeDBIn = ();
 			}	
 		if (@timeBeeDBOut > 0)
 			{
 				my $meanTimeOut = sum(@timeBeeDBOut) / @timeBeeDBOut;
-				$speedOut = $distance / ($meanTimeOut * 0.001);
+				$speedOut = $distance / ($meanTimeOut * 0.05);
 				$speedOut = sprintf("%.1f",$speedOut);
-				print "Speed Out: $speedOut\n";
+				@timeBeeDBOut = ();
+				print "Speed Out: $speedOut mm/sec\n";
+
 			}
 
 	}
