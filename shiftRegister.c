@@ -16,7 +16,8 @@ int main (void)
 		digitalWrite (3,LOW);
 		delay(1);
 		digitalWrite (3,HIGH);
-
+		
+		bit = digitalRead(0);
 
 		for (a = 0; a<24; a=a+1)
 
